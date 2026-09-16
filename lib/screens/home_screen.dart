@@ -78,11 +78,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: AtmosphericBackground(
+        scroll: _scrollController,
         child: Stack(
           children: [
             Positioned.fill(
               child: SingleChildScrollView(
                 controller: _scrollController,
+                clipBehavior: Clip.hardEdge,
                 child: Column(
                   children: [
                     KeyedSubtree(

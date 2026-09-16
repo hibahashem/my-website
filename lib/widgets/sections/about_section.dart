@@ -15,7 +15,7 @@ class AboutSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    final isMobile = Breakpoints.isMobile(width);
+    final isCompact = Breakpoints.isCompact(width);
 
     return ResponsivePadding(
       child: Padding(
@@ -23,11 +23,9 @@ class AboutSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AnimateOnVisible(
-              child: SectionTitle(title: 'About Me'),
-            ),
+            const AnimateOnVisible(child: SectionTitle(title: 'About Me')),
             const SizedBox(height: 36),
-            if (isMobile)
+            if (isCompact)
               Column(
                 children: [
                   const AnimateOnVisible(
@@ -67,7 +65,7 @@ class AboutSection extends StatelessWidget {
                 ],
               ),
             const SizedBox(height: 48),
-            _StatsRow(isMobile: isMobile),
+            _StatsRow(isMobile: isCompact),
           ],
         ),
       ),
@@ -108,10 +106,11 @@ class _AboutAvatar extends StatelessWidget {
                 color: AppColors.card,
                 border: Border.all(color: AppColors.border),
               ),
-              child: const Icon(
-                Icons.waving_hand_rounded,
-                size: 48,
-                color: AppColors.accent,
+              clipBehavior: Clip.antiAlias,
+              child: Image.asset(
+                'assets/avatar.png',
+                fit: BoxFit.cover,
+                alignment: const Alignment(0, -0.15),
               ),
             ),
           ),
@@ -122,7 +121,10 @@ class _AboutAvatar extends StatelessWidget {
               amplitude: 5,
               sway: 3,
               duration: const Duration(milliseconds: 2400),
-              child: const Text('✦', style: TextStyle(color: Colors.white70, fontSize: 14)),
+              child: const Text(
+                '✦',
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
             ),
           ),
           Positioned(
@@ -133,7 +135,10 @@ class _AboutAvatar extends StatelessWidget {
               sway: 4,
               delay: const Duration(milliseconds: 500),
               duration: const Duration(milliseconds: 2800),
-              child: const Text('✧', style: TextStyle(color: Colors.white54, fontSize: 10)),
+              child: const Text(
+                '✧',
+                style: TextStyle(color: Colors.white54, fontSize: 10),
+              ),
             ),
           ),
         ],
@@ -219,7 +224,8 @@ class _StatBlock extends StatelessWidget {
     return Column(
       children: [
         ShaderMask(
-          shaderCallback: (bounds) => AppColors.statGradient.createShader(bounds),
+          shaderCallback: (bounds) =>
+              AppColors.statGradient.createShader(bounds),
           child: Text(
             stat.value,
             style: AppTextStyles.heading(

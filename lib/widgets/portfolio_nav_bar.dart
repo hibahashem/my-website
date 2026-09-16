@@ -58,7 +58,10 @@ class PortfolioNavBar extends StatelessWidget {
                     onTap: () => onNavigate('hero'),
                     child: Text(
                       'Hiba.',
-                      style: AppTextStyles.heading(fontSize: 22, letterSpacing: -0.6),
+                      style: AppTextStyles.heading(
+                        fontSize: 22,
+                        letterSpacing: -0.6,
+                      ),
                     ),
                   ),
                   if (showLinks) ...[
@@ -82,8 +85,19 @@ class PortfolioNavBar extends StatelessWidget {
                   ] else ...[
                     const Spacer(),
                     IconButton(
+                      tooltip: 'Resume',
+                      onPressed: openResumePdf,
+                      icon: const Icon(
+                        Icons.download_rounded,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    IconButton(
                       onPressed: () => _openMenu(context),
-                      icon: const Icon(Icons.menu_rounded, color: AppColors.textPrimary),
+                      icon: const Icon(
+                        Icons.menu_rounded,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                   ],
                 ],

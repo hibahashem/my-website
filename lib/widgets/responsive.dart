@@ -13,9 +13,9 @@ class ResponsivePadding extends StatelessWidget {
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         final horizontal = Breakpoints.isMobile(width)
-            ? 20.0
+            ? 16.0
             : Breakpoints.isTablet(width)
-                ? 40.0
+                ? 32.0
                 : 80.0;
         return Align(
           alignment: Alignment.topCenter,

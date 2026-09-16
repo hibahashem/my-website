@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import 'screens/home_screen.dart';
@@ -30,11 +31,30 @@ class PortfolioApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Hiba Hashem — Flutter Developer',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
-      routerConfig: _router,
+    return ScreenUtilInit(
+      designSize: const Size(390, 844),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return MaterialApp.router(
+          title: 'Hiba Hashem — Flutter Developer',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.dark,
+          routerConfig: _router,
+          builder: (context, widget) {
+            final media = MediaQuery.of(context);
+            return MediaQuery(
+              data: media.copyWith(
+                textScaler: media.textScaler.clamp(
+                  minScaleFactor: 0.9,
+                  maxScaleFactor: 1.2,
+                ),
+              ),
+              child: widget ?? const SizedBox.shrink(),
+            );
+          },
+        );
+      },
     );
   }
 }

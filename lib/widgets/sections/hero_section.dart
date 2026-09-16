@@ -2,12 +2,15 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../data/profile_data.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/launch_utils.dart';
 import '../common_widgets.dart';
+import '../effects/interactive_3d.dart';
 import '../floating_motion.dart';
 import '../responsive.dart';
 
@@ -26,27 +29,39 @@ class HeroSection extends StatelessWidget {
     final width = MediaQuery.sizeOf(context).width;
     final isMobile = Breakpoints.isMobile(width);
     final isTablet = Breakpoints.isTablet(width);
-    final nameSize = isMobile ? 42.0 : isTablet ? 56.0 : 72.0;
+    final isCompact = Breakpoints.isCompact(width);
+    final nameSize = isMobile
+        ? 36.0
+        : isTablet
+        ? 48.0
+        : 72.0;
+    final avatarSize = isMobile
+        ? 220.0
+        : isTablet
+        ? 280.0
+        : 440.0;
 
     return Column(
       children: [
         ResponsivePadding(
           child: Padding(
             padding: EdgeInsets.only(
-              top: isMobile ? 110 : 140,
-              bottom: isMobile ? 40 : 56,
+              top: isMobile ? 100 : 140,
+              bottom: isMobile ? 32 : 56,
             ),
-            child: isMobile
+            child: isCompact
                 ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      _HeroAvatar(size: avatarSize, compact: true),
+                      const SizedBox(height: 24),
                       _HeroCopy(
                         nameSize: nameSize,
                         onHireMe: onHireMe,
                         onMyStory: onMyStory,
+                        centered: true,
+                        showCv: false,
                       ),
-                      const SizedBox(height: 36),
-                      const Center(child: _HeroAvatar(size: 240)),
                     ],
                   )
                 : Row(
@@ -58,12 +73,13 @@ class HeroSection extends StatelessWidget {
                           nameSize: nameSize,
                           onHireMe: onHireMe,
                           onMyStory: onMyStory,
+                          showCv: true,
                         ),
                       ),
                       const SizedBox(width: 24),
-                      const Expanded(
+                      Expanded(
                         flex: 5,
-                        child: Center(child: _HeroAvatar(size: 360)),
+                        child: Center(child: _HeroAvatar(size: avatarSize)),
                       ),
                     ],
                   ),
@@ -81,40 +97,84 @@ class _HeroCopy extends StatelessWidget {
     required this.nameSize,
     required this.onHireMe,
     required this.onMyStory,
+    this.centered = false,
+    this.showCv = false,
   });
 
   final double nameSize;
   final VoidCallback onHireMe;
   final VoidCallback onMyStory;
+  final bool centered;
+  final bool showCv;
 
   @override
   Widget build(BuildContext context) {
+    final align = centered
+        ? CrossAxisAlignment.center
+        : CrossAxisAlignment.start;
+    final textAlign = centered ? TextAlign.center : TextAlign.start;
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: align,
       children: [
-        FloatingMotion(
-          amplitude: 4,
-          sway: 2,
-          duration: const Duration(milliseconds: 3800),
-          child: Transform.translate(
-            offset: const Offset(4, 14),
-            child: Text(
-              heroContent.scriptPrefix,
-              style: AppTextStyles.script(fontSize: nameSize * 0.55),
+        Stack(
+          clipBehavior: Clip.none,
+          alignment: centered ? Alignment.topCenter : Alignment.topLeft,
+          children: [
+            if (showCv)
+              Positioned(
+                top: 0,
+                left: -150,
+                child: Opacity(
+                  opacity: 0.92,
+                  child: Transform.translate(
+                    offset: const Offset(-40, 18),
+                    child: Transform.rotate(
+                      angle: 0.14,
+                      child: FloatingMotion(
+                        amplitude: 5,
+                        sway: 3,
+                        duration: const Duration(milliseconds: 4200),
+                        child: HologramCv(onOpen: openResumePdf, width: 142),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            Column(
+              crossAxisAlignment: align,
+              children: [
+                FloatingMotion(
+                  amplitude: 4,
+                  sway: 2,
+                  duration: const Duration(milliseconds: 3800),
+                  child: Transform.translate(
+                    offset: Offset(centered ? 0 : 4, 14),
+                    child: Text(
+                      heroContent.scriptPrefix,
+                      textAlign: textAlign,
+                      style: AppTextStyles.script(fontSize: nameSize * 0.55),
+                    ),
+                  ),
+                ),
+                Text(
+                  heroContent.name,
+                  textAlign: textAlign,
+                  softWrap: true,
+                  style: AppTextStyles.heading(
+                    fontSize: nameSize,
+                    height: 1.05,
+                    letterSpacing: -1.2,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ),
-        Text(
-          heroContent.name,
-          style: AppTextStyles.heading(
-            fontSize: nameSize,
-            height: 1.05,
-            letterSpacing: -2,
-          ),
+          ],
         ),
         const SizedBox(height: 10),
         Text(
           heroContent.roleLine,
+          textAlign: textAlign,
           style: AppTextStyles.label(
             fontSize: 15,
             color: AppColors.accent,
@@ -126,6 +186,7 @@ class _HeroCopy extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 520),
           child: Text(
             heroContent.subheading,
+            textAlign: textAlign,
             style: AppTextStyles.body(fontSize: 16),
           ),
         ),
@@ -133,6 +194,7 @@ class _HeroCopy extends StatelessWidget {
         Wrap(
           spacing: 14,
           runSpacing: 14,
+          alignment: centered ? WrapAlignment.center : WrapAlignment.start,
           children: [
             FloatingMotion(
               amplitude: 5,
@@ -156,6 +218,18 @@ class _HeroCopy extends StatelessWidget {
                 onPressed: onMyStory,
               ),
             ),
+            if (centered)
+              FloatingMotion(
+                amplitude: 5,
+                sway: 3,
+                delay: const Duration(milliseconds: 700),
+                duration: const Duration(milliseconds: 3300),
+                child: GlassButton(
+                  label: 'Resume',
+                  emoji: '📄',
+                  onPressed: openResumePdf,
+                ),
+              ),
           ],
         ),
       ],
@@ -164,173 +238,183 @@ class _HeroCopy extends StatelessWidget {
 }
 
 class _HeroAvatar extends StatelessWidget {
-  const _HeroAvatar({required this.size});
+  const _HeroAvatar({required this.size, this.compact = false});
 
   final double size;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    final photoSize = size * (compact ? 0.72 : 0.64);
+    final photo = ProfileAvatar(
+      size: photoSize,
+      borderColor: Colors.white.withValues(alpha: 0.12),
+      backgroundColor: AppColors.card.withValues(alpha: 0.85),
+      shadowColor: AppColors.accent.withValues(alpha: 0.25),
+    );
+
+    final stack = Stack(
+      alignment: Alignment.center,
+      clipBehavior: Clip.none,
+      children: [
+        if (!compact) ...[
+          FloatingMotion(
+            amplitude: 14,
+            sway: 10,
+            duration: const Duration(milliseconds: 4200),
+            child: Align(
+              alignment: const Alignment(-0.85, -0.55),
+              child: _Cloud(width: size * 0.34),
+            ),
+          ),
+          FloatingMotion(
+            amplitude: 12,
+            sway: 8,
+            delay: const Duration(milliseconds: 600),
+            duration: const Duration(milliseconds: 3600),
+            child: Align(
+              alignment: const Alignment(0.75, -0.72),
+              child: _Cloud(width: size * 0.28),
+            ),
+          ),
+          FloatingMotion(
+            amplitude: 10,
+            sway: 12,
+            delay: const Duration(milliseconds: 1100),
+            duration: const Duration(milliseconds: 4800),
+            child: Align(
+              alignment: const Alignment(0.95, 0.55),
+              child: _Cloud(width: size * 0.3),
+            ),
+          ),
+        ],
+        // Blob glow behind — no 3D tilt on mobile so the photo stays round.
+        FloatingMotion(
+          amplitude: compact ? 4 : 8,
+          sway: compact ? 2 : 4,
+          duration: const Duration(milliseconds: 3400),
+          child: LiquidBlob(
+            size: size * (compact ? 0.88 : 0.82),
+            tilt: !compact,
+            child: compact ? null : photo,
+          ),
+        ),
+        if (compact) photo,
+        if (!compact) ...[
+          Positioned(
+            top: size * 0.08,
+            left: size * 0.02,
+            child: FloatingMotion(
+              amplitude: 9,
+              sway: 5,
+              rotate: 0.04,
+              delay: const Duration(milliseconds: 200),
+              duration: const Duration(milliseconds: 3000),
+              child: const _FloatChip(
+                label: 'Flutter',
+                icon: Icons.flutter_dash,
+              ),
+            ),
+          ),
+          Positioned(
+            top: size * 0.22,
+            right: size * 0.0,
+            child: FloatingMotion(
+              amplitude: 11,
+              sway: 6,
+              rotate: -0.05,
+              delay: const Duration(milliseconds: 700),
+              duration: const Duration(milliseconds: 3400),
+              child: const _FloatChip(
+                label: 'BLoC',
+                icon: Icons.hub_outlined,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: size * 0.14,
+            left: size * 0.0,
+            child: FloatingMotion(
+              amplitude: 10,
+              sway: 7,
+              rotate: 0.03,
+              delay: const Duration(milliseconds: 450),
+              duration: const Duration(milliseconds: 3700),
+              child: const _FloatChip(
+                label: 'Firebase',
+                icon: Icons.local_fire_department_outlined,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: size * 0.06,
+            right: size * 0.08,
+            child: FloatingMotion(
+              amplitude: 8,
+              sway: 5,
+              rotate: -0.04,
+              delay: const Duration(milliseconds: 900),
+              duration: const Duration(milliseconds: 2900),
+              child: const _FloatChip(
+                label: 'Clean Arch',
+                icon: Icons.architecture,
+              ),
+            ),
+          ),
+          Positioned(
+            top: size * 0.16,
+            right: size * 0.22,
+            child: FloatingMotion(
+              amplitude: 6,
+              sway: 3,
+              duration: const Duration(milliseconds: 2200),
+              child: _Twinkle(size: 18, delay: Duration.zero),
+            ),
+          ),
+          Positioned(
+            bottom: size * 0.28,
+            left: size * 0.18,
+            child: FloatingMotion(
+              amplitude: 5,
+              sway: 4,
+              delay: const Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 2600),
+              child: _Twinkle(
+                size: 14,
+                delay: const Duration(milliseconds: 400),
+              ),
+            ),
+          ),
+          Positioned(
+            top: size * 0.42,
+            left: size * 0.08,
+            child: FloatingMotion(
+              amplitude: 7,
+              sway: 3,
+              delay: const Duration(milliseconds: 800),
+              duration: const Duration(milliseconds: 2400),
+              child: _Twinkle(
+                size: 12,
+                delay: const Duration(milliseconds: 800),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+
+    final framed = SizedBox(
       width: size,
       height: size,
-      child: ParallaxHover(
-        maxOffset: 14,
-        child: Stack(
-          alignment: Alignment.center,
-          clipBehavior: Clip.none,
-          children: [
-            FloatingMotion(
-              amplitude: 14,
-              sway: 10,
-              duration: const Duration(milliseconds: 4200),
-              child: Align(
-                alignment: const Alignment(-0.85, -0.55),
-                child: _Cloud(width: size * 0.34),
-              ),
+      child: compact
+          ? stack
+          : Tilt3D(
+              maxTilt: 0.16,
+              child: ParallaxHover(maxOffset: 14, child: stack),
             ),
-            FloatingMotion(
-              amplitude: 12,
-              sway: 8,
-              delay: const Duration(milliseconds: 600),
-              duration: const Duration(milliseconds: 3600),
-              child: Align(
-                alignment: const Alignment(0.75, -0.72),
-                child: _Cloud(width: size * 0.28),
-              ),
-            ),
-            FloatingMotion(
-              amplitude: 10,
-              sway: 12,
-              delay: const Duration(milliseconds: 1100),
-              duration: const Duration(milliseconds: 4800),
-              child: Align(
-                alignment: const Alignment(0.95, 0.55),
-                child: _Cloud(width: size * 0.3),
-              ),
-            ),
-            FloatingMotion(
-              amplitude: 8,
-              sway: 4,
-              duration: const Duration(milliseconds: 3400),
-              child: Container(
-                width: size * 0.68,
-                height: size * 0.68,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      AppColors.accentWarm.withValues(alpha: 0.35),
-                      AppColors.card,
-                    ],
-                  ),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.08),
-                    width: 2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.accentWarm.withValues(alpha: 0.25),
-                      blurRadius: 40,
-                      spreadRadius: 4,
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.person_rounded,
-                  size: size * 0.36,
-                  color: AppColors.textPrimary.withValues(alpha: 0.9),
-                ),
-              ),
-            ),
-            // Floating skill chips
-            Positioned(
-              top: size * 0.08,
-              left: size * 0.02,
-              child: FloatingMotion(
-                amplitude: 9,
-                sway: 5,
-                rotate: 0.04,
-                delay: const Duration(milliseconds: 200),
-                duration: const Duration(milliseconds: 3000),
-                child: const _FloatChip(label: 'Flutter', icon: Icons.flutter_dash),
-              ),
-            ),
-            Positioned(
-              top: size * 0.22,
-              right: size * 0.0,
-              child: FloatingMotion(
-                amplitude: 11,
-                sway: 6,
-                rotate: -0.05,
-                delay: const Duration(milliseconds: 700),
-                duration: const Duration(milliseconds: 3400),
-                child: const _FloatChip(label: 'BLoC', icon: Icons.hub_outlined),
-              ),
-            ),
-            Positioned(
-              bottom: size * 0.14,
-              left: size * 0.0,
-              child: FloatingMotion(
-                amplitude: 10,
-                sway: 7,
-                rotate: 0.03,
-                delay: const Duration(milliseconds: 450),
-                duration: const Duration(milliseconds: 3700),
-                child: const _FloatChip(
-                  label: 'Firebase',
-                  icon: Icons.local_fire_department_outlined,
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: size * 0.06,
-              right: size * 0.08,
-              child: FloatingMotion(
-                amplitude: 8,
-                sway: 5,
-                rotate: -0.04,
-                delay: const Duration(milliseconds: 900),
-                duration: const Duration(milliseconds: 2900),
-                child: const _FloatChip(label: 'Clean Arch', icon: Icons.architecture),
-              ),
-            ),
-            // Twinkling stars
-            Positioned(
-              top: size * 0.16,
-              right: size * 0.22,
-              child: FloatingMotion(
-                amplitude: 6,
-                sway: 3,
-                duration: const Duration(milliseconds: 2200),
-                child: _Twinkle(size: 18, delay: Duration.zero),
-              ),
-            ),
-            Positioned(
-              bottom: size * 0.28,
-              left: size * 0.18,
-              child: FloatingMotion(
-                amplitude: 5,
-                sway: 4,
-                delay: const Duration(milliseconds: 500),
-                duration: const Duration(milliseconds: 2600),
-                child: _Twinkle(size: 14, delay: const Duration(milliseconds: 400)),
-              ),
-            ),
-            Positioned(
-              top: size * 0.42,
-              left: size * 0.08,
-              child: FloatingMotion(
-                amplitude: 7,
-                sway: 3,
-                delay: const Duration(milliseconds: 800),
-                duration: const Duration(milliseconds: 2400),
-                child: _Twinkle(size: 12, delay: const Duration(milliseconds: 800)),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
+
+    return compact ? Center(child: framed) : framed;
   }
 }
 
@@ -346,12 +430,12 @@ class _FloatChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.card.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
         border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.35),
-            blurRadius: 16,
+            blurRadius: 16.r,
             offset: const Offset(0, 8),
           ),
         ],
@@ -381,7 +465,8 @@ class _Twinkle extends StatefulWidget {
   State<_Twinkle> createState() => _TwinkleState();
 }
 
-class _TwinkleState extends State<_Twinkle> with SingleTickerProviderStateMixin {
+class _TwinkleState extends State<_Twinkle>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
@@ -405,9 +490,10 @@ class _TwinkleState extends State<_Twinkle> with SingleTickerProviderStateMixin 
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
-      opacity: Tween(begin: 0.35, end: 1.0).animate(
-        CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-      ),
+      opacity: Tween(
+        begin: 0.35,
+        end: 1.0,
+      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut)),
       child: ScaleTransition(
         scale: Tween(begin: 0.85, end: 1.15).animate(
           CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
@@ -440,7 +526,7 @@ class _Cloud extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.white.withValues(alpha: 0.25),
-            blurRadius: 16,
+            blurRadius: 16.r,
           ),
         ],
       ),
@@ -490,36 +576,38 @@ class _SkillsMarqueeState extends State<SkillsMarquee> {
 
     return Transform.rotate(
       angle: -2.2 * math.pi / 180,
-      child: Container(
-        width: double.infinity,
-        color: const Color(0xFF101018),
-        padding: const EdgeInsets.symmetric(vertical: 18),
-        child: SizedBox(
-          height: 28,
-          child: ListView.separated(
-            controller: _controller,
-            scrollDirection: Axis.horizontal,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: items.length,
-            separatorBuilder: (_, _) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              child: Text(
-                '✦',
-                style: AppTextStyles.label(color: AppColors.textPrimary),
-              ),
-            ),
-            itemBuilder: (context, index) {
-              return Center(
+      child: ClipRect(
+        child: Container(
+          width: double.infinity,
+          color: const Color(0xFF101018),
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          child: SizedBox(
+            height: 28,
+            child: ListView.separated(
+              controller: _controller,
+              scrollDirection: Axis.horizontal,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: items.length,
+              separatorBuilder: (_, _) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18),
                 child: Text(
-                  items[index],
-                  style: AppTextStyles.heading(
-                    fontSize: 18,
-                    letterSpacing: 0.2,
-                    weight: FontWeight.w700,
-                  ),
+                  '✦',
+                  style: AppTextStyles.label(color: AppColors.textPrimary),
                 ),
-              );
-            },
+              ),
+              itemBuilder: (context, index) {
+                return Center(
+                  child: Text(
+                    items[index],
+                    style: AppTextStyles.heading(
+                      fontSize: 18,
+                      letterSpacing: 0.2,
+                      weight: FontWeight.w700,
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),

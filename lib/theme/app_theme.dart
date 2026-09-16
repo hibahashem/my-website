@@ -37,4 +37,7 @@ abstract final class Breakpoints {
   static bool isMobile(double width) => width < mobile;
   static bool isTablet(double width) => width >= mobile && width <= tablet;
   static bool isDesktop(double width) => width > tablet;
+
+  /// Mobile + tablet — prefer stacked / compact layouts.
+  static bool isCompact(double width) => width <= tablet;
 }

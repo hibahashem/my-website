@@ -24,7 +24,6 @@ class HeroContent {
     required this.marqueeSkills,
     required this.email,
     required this.linkedinUrl,
-    required this.githubUrl,
   });
 
   final String scriptPrefix;
@@ -34,20 +33,18 @@ class HeroContent {
   final List<String> marqueeSkills;
   final String email;
   final String linkedinUrl;
-  final String githubUrl;
+
 }
 
 class ContactContent {
   const ContactContent({
     required this.email,
     required this.linkedinUrl,
-    required this.githubUrl,
     required this.copyright,
   });
 
   final String email;
   final String linkedinUrl;
-  final String githubUrl;
   final String copyright;
 }
 
@@ -84,7 +81,6 @@ const heroContent = HeroContent(
   // TODO: replace with real LinkedIn profile URL
   linkedinUrl: 'https://www.linkedin.com/in/TODO-hiba-hashem',
   // TODO: replace with real GitHub profile URL
-  githubUrl: 'https://github.com/TODO-hiba-hashem',
 );
 
 const aboutContent = AboutContent(
@@ -103,22 +99,45 @@ const aboutContent = AboutContent(
 const educationContent = EducationContent(
   degree: 'B.Sc. in Software Engineering',
   institution: 'College of Information Technology Engineering, Damascus University',
-  years: '2019–2024',
+  years: '2019–2023',
 );
 
 const contactContent = ContactContent(
   email: 'hashemhiba4@gmail.com',
   // TODO: replace with real LinkedIn profile URL
-  linkedinUrl: 'https://www.linkedin.com/in/TODO-hiba-hashem',
+  linkedinUrl: 'https://www.linkedin.com/in/hiba-hashem-3abab01b1/',
   // TODO: replace with real GitHub profile URL
-  githubUrl: 'https://github.com/TODO-hiba-hashem',
+
   copyright: '© 2026 Hiba Hashem · All Rights Reserved',
 );
 
 /// Company pills shown under projects (from experience).
+class CompanyLink {
+  const CompanyLink({
+    required this.name,
+    required this.url,
+  });
+
+  final String name;
+  final String url;
+}
+
 const companiesWorkedWith = [
-  'R-link',
-  'Ridgetech',
-  'Madfox Solutions',
-  'SunriseIT',
+  CompanyLink(
+    name: 'R-link',
+    url: 'https://www.linkedin.com/company/rlinkbs',
+  ),
+  CompanyLink(
+    name: 'Ridgetech',
+    // TODO: replace with official site if available
+    url: 'https://www.linkedin.com/company/ridgetech',
+  ),
+  CompanyLink(
+    name: 'Madfox Solutions',
+    url: 'https://www.linkedin.com/company/madfoxdxb',
+  ),
+  CompanyLink(
+    name: 'SunriseIT',
+    url: 'https://mysunriseit.com/en',
+  ),
 ];
