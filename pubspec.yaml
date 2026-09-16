@@ -15,6 +15,7 @@ dependencies:
   go_router: ^15.1.2
   url_launcher: ^6.3.1
   flutter_screenutil: ^5.9.3
+  meta_seo: ^3.0.9
 
 dev_dependencies:
   flutter_test:

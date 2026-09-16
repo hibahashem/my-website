@@ -6,6 +6,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_theme.dart';
 import '../utils/launch_utils.dart';
+import '../utils/seo.dart';
 import '../widgets/common_widgets.dart';
 import '../widgets/responsive.dart';
 
@@ -35,6 +36,12 @@ class ProjectDetailScreen extends StatelessWidget {
         ),
       );
     }
+
+    applyPortfolioSeo(
+      title: '${project.title} — Hiba Hashem',
+      description: project.description,
+      url: '$portfolioSiteUrl#/projects/${project.id}',
+    );
 
     final width = MediaQuery.sizeOf(context).width;
     final isMobile = Breakpoints.isMobile(width);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../utils/seo.dart';
 import '../widgets/common_widgets.dart';
 import '../widgets/portfolio_nav_bar.dart';
 import '../widgets/sections/about_section.dart';
@@ -37,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    applyPortfolioSeo();
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final section = widget.initialSection;

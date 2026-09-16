@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -5,14 +6,19 @@ import 'package:go_router/go_router.dart';
 import 'screens/home_screen.dart';
 import 'screens/project_detail_screen.dart';
 import 'theme/app_theme.dart';
+import 'utils/seo.dart';
 
 void main() {
+  configureMetaSeo();
   runApp(const PortfolioApp());
 }
 
 final _router = GoRouter(
   routes: [
-    GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const HomeScreen(),
+    ),
     GoRoute(
       path: '/projects/:id',
       builder: (context, state) {
@@ -28,13 +34,17 @@ class PortfolioApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      applyPortfolioSeo();
+    }
+
     return ScreenUtilInit(
       designSize: const Size(390, 844),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp.router(
-          title: 'Hiba Hashem — Flutter Developer',
+          title: portfolioSeoTitle,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.dark,
           routerConfig: _router,
